@@ -2,19 +2,18 @@ import { useEffect, useRef, useState } from "react";
 
 // On this component we create a new Pixel Art for other to draw.
 
-const CreatePixelArt = (props) => {
-  const {
-    draw,
-    width,
-    height,
-    pickedColor,
-    updateBoardData,
-    boardData,
-    setBoardData,
-    scale,
-    rectSize,
-    ...rest
-  } = props;
+const CreatePixelArt = ({
+  draw,
+  width,
+  height,
+  pickedColor,
+  updateBoardData,
+  boardData,
+  setBoardData,
+  scale,
+  rectSize,
+  ...rest
+}) => {
   const canvasRef = useRef(null);
   const [ctx, setCtx] = useState(null);
   const [canvas, setCanvas] = useState(null);
@@ -74,9 +73,9 @@ const CreatePixelArt = (props) => {
         const pixel = {
           x: i,
           y: j,
-          currentColor: "white",
-          desiredColor: "blue",
-          colorCode: 1,
+          pickedColor: "white",
+          // we don't know the color code yet, we generate that afterwards
+          colorCode: null,
         };
         updateBoardData(pixel);
         ctx.fillStyle = "white";
@@ -115,7 +114,7 @@ const CreatePixelArt = (props) => {
     const index = boardData.findIndex((o) => o.x === rectX && o.y === rectY);
     if (index > -1) {
       const newBoard = [...boardData];
-      newBoard[index] = { ...boardData[index], currentColor: pickedColor };
+      newBoard[index] = { ...boardData[index], pickedColor: pickedColor };
       setBoardData(newBoard);
     }
 
@@ -133,16 +132,13 @@ const CreatePixelArt = (props) => {
 
   // checks if spacebar is hold down
   const handleKeyDown = (e) => {
-    console.log(e);
     if (e.which !== 32) return;
-
     setSpaceBarHoldDown(true);
   };
 
   // checks if spacebar has been released
   const handleKeyUp = (e) => {
     if (e.which !== 32) return;
-
     setSpaceBarHoldDown(false);
   };
 
