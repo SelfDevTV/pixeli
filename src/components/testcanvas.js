@@ -28,22 +28,22 @@ const TestCanvas = (props) => {
     setCtx(context);
 
     //draw
+  }, []);
 
-    generateDrawingBoard(context);
-  }, [boardData]);
+  useEffect(() => {
+    generateDrawingBoard(ctx, boardData);
+  }, [ctx]);
 
-  const generateDrawingBoard = (ctx) => {
+  const generateDrawingBoard = (ctx, boardData) => {
     // Todo:
     if (boardData.length === 0) return;
     // Generate an Array of pixels that have all the things we need to redraw
-    console.log("board data length: ", boardData.length);
-    console.log("board data", boardData);
 
     boardData.forEach((pixel) => {
       ctx.fillStyle = pixel.currentColor;
       ctx.fillRect(pixel.x * rectSize, pixel.y * rectSize, rectSize, rectSize);
 
-      ctx.fillStyle = "white";
+      ctx.fillStyle = "black";
       ctx.strokeRect(
         pixel.x * rectSize,
         pixel.y * rectSize,
@@ -73,7 +73,6 @@ const TestCanvas = (props) => {
     let rectY = Math.floor(coordinates.y / rectSize);
     // stop drawing when it's outside of the bounds (i have a grid 100 x 100)
     if (rectX > rectCount - 1 || rectY > rectCount - 1) {
-      console.log("im here");
       return;
     }
 
@@ -86,6 +85,9 @@ const TestCanvas = (props) => {
 
     ctx.fillStyle = pickedColor;
     ctx.fillRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
+
+    ctx.fillStyle = "black";
+    ctx.strokeRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
   };
 
   return (

@@ -9,6 +9,7 @@ const Canvas = (props) => {
     updateBoardData,
     boardData,
     setBoardData,
+    scale,
     ...rest
   } = props;
   const canvasRef = useRef(null);
@@ -31,6 +32,11 @@ const Canvas = (props) => {
 
     generateDrawingBoard(context);
   }, []);
+
+  useEffect(() => {
+    if (canvas === null) return;
+    // resizeCanvas(canvas);
+  }, [scale]);
 
   const generateDrawingBoard = (ctx) => {
     // Todo:
@@ -70,6 +76,23 @@ const Canvas = (props) => {
     return { x: x, y: y };
   }
 
+  function resizeCanvas(canvas) {
+    const { width, height } = canvas.getBoundingClientRect();
+
+    if (canvas.width !== width || canvas.height !== height) {
+      console.log("scroll");
+      const { devicePixelRatio: ratio = 1 } = window;
+
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
+      ctx.scale(ratio, ratio);
+      return true;
+    }
+    canvas.width = width;
+    canvas.height = height;
+    return false;
+  }
+
   const paint = (e, isClick) => {
     if (!isDrawing && !isClick) {
       return;
@@ -77,8 +100,8 @@ const Canvas = (props) => {
 
     const coordinates = getCursorPosition(canvas, e);
 
-    let rectX = Math.floor(coordinates.x / rectSize);
-    let rectY = Math.floor(coordinates.y / rectSize);
+    let rectX = Math.floor(coordinates.x / (rectSize * scale));
+    let rectY = Math.floor(coordinates.y / (rectSize * scale));
     // stop drawing when it's outside of the bounds (i have a grid 100 x 100)
     if (rectX > rectCount - 1 || rectY > rectCount - 1) {
       console.log("im here");
@@ -94,6 +117,8 @@ const Canvas = (props) => {
 
     ctx.fillStyle = pickedColor;
     ctx.fillRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
+    ctx.fillStyle = "black";
+    ctx.strokeRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
   };
 
   return (

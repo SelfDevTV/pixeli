@@ -1,9 +1,3 @@
-# Pixeli
-
-**A coloring pixels game**
-
-## Todo:
-
 - chose create a pixel art or draw a already created pixel art
 - create a pixel art
 

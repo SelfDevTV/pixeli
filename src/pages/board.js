@@ -8,11 +8,9 @@ const Board = () => {
 
   useEffect(() => {
     setBoardData(JSON.parse(localStorage.getItem("canvasData")));
-    const test = localStorage.getItem("canvasData");
   }, []);
 
   const updateBoardData = (pixel) => {
-    console.log("hi");
     setBoardData((boardData) => [...boardData, pixel]);
   };
 
