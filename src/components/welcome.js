@@ -14,7 +14,7 @@ const Welcome = () => {
             Create a Pixel Art
           </a>
         </Link>
-        <Link href="/playPixelArtList">
+        <Link href="/playPixelArtPage">
           <a className="p-4 border-4 border-yellow-700 rounded-lg">
             Chose a Pixel Art to Play
           </a>

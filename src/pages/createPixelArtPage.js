@@ -1,9 +1,9 @@
 import CreatePixelArt from "../components/createPixelArt";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { supabase } from "../lib/initSupabase";
 import { useState } from "react";
 import { CirclePicker } from "react-color";
 import { useWindowSize } from "../utils/useWindowSize";
-import Link from "next/link";
 
 const CreatePixelArtPage = () => {
   const [selectedColor, setColor] = useState("#f44336");
@@ -19,10 +19,12 @@ const CreatePixelArtPage = () => {
     setBoardData((boardData) => [...boardData, pixel]);
   };
 
-  const submitCanvasData = () => {
-    // save the item in local storage
-    // TODO: Give it an ID get the ID from state?
-    localStorage.setItem("canvasData", JSON.stringify(boardData));
+  const submitCanvasData = async () => {
+    // inserts the current pixelArt Data into the datbase
+    // TODO: figure out to give it a title afterwards on the savePixelArtForm Screen
+    const { data, error } = await supabase
+      .from("pixelArts")
+      .insert({ pixelArtTitle: "Test", pixels: JSON.stringify(boardData) });
   };
 
   const handleZoom = (ReactZoomPanPinchRef) => {
@@ -61,14 +63,20 @@ const CreatePixelArtPage = () => {
         </TransformComponent>
       </TransformWrapper>
       {/* TODO: Include the already saved id of the canvas in the query props */}
-      <Link href="/savePixelArtForm">
+      {/* <Link href="/savePixelArtForm">
         <a
           className="py-2 px-5 mt-4 rounded-lg bg-yellow-700 text-white"
           onClick={submitCanvasData}
         >
           Go to Save Screen
         </a>
-      </Link>
+      </Link> */}
+      <button
+        className="py-2 px-5 mt-4 rounded-lg bg-yellow-700 text-white"
+        onClick={submitCanvasData}
+      >
+        Save Canvas
+      </button>
     </div>
   );
 };
