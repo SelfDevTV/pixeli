@@ -10,6 +10,7 @@ const Canvas = (props) => {
     boardData,
     setBoardData,
     scale,
+    rectSize,
     ...rest
   } = props;
   const canvasRef = useRef(null);
@@ -17,8 +18,9 @@ const Canvas = (props) => {
   const [canvas, setCanvas] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
   //   const [drawingBoard, setDrawingBoard] = useState([]);
-  const [rectCount, setRectCount] = useState(30);
-  const [rectSize, setRectSize] = useState(Math.floor(width / rectCount));
+
+  const [rectCountX, setRectCountX] = useState(Math.round(width / rectSize));
+  const [rectCountY, setRectCountY] = useState(Math.round(height / rectSize));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,23 +30,41 @@ const Canvas = (props) => {
     const context = canvas.getContext("2d");
     setCtx(context);
 
-    //draw
-
     generateDrawingBoard(context);
+    //draw
   }, []);
+
+  // reset Canvas Dimensions after width / height changes
+  useEffect(() => {
+    if (canvas === null) return;
+
+    canvas.width = width;
+    canvas.height = height;
+    setRectCountX(Math.floor(width / rectSize));
+    setRectCountY(Math.floor(height / rectSize));
+  }, [width, height, rectSize]);
+
+  // re generate the board after the rectSize changes
 
   useEffect(() => {
     if (canvas === null) return;
+    generateDrawingBoard(ctx);
+  }, [rectCountX, rectCountY]);
+
+  useEffect(() => {
+    if (canvas === null) return;
+
     // resizeCanvas(canvas);
   }, [scale]);
 
   const generateDrawingBoard = (ctx) => {
+    console.log("canvas width: ", rectSize);
     // Todo:
 
     // Generate an Array of pixels that have all the things we need to redraw
 
-    for (var i = 0; i < rectCount; i++) {
-      for (var j = 0; j < rectCount; j++) {
+    for (var i = 0; i < rectCountX; i++) {
+      for (var j = 0; j < rectCountY; j++) {
         //for debugging
 
         const pixel = {
@@ -76,22 +96,22 @@ const Canvas = (props) => {
     return { x: x, y: y };
   }
 
-  function resizeCanvas(canvas) {
-    const { width, height } = canvas.getBoundingClientRect();
+  // function resizeCanvas(canvas) {
+  //   const { width, height } = canvas.getBoundingClientRect();
 
-    if (canvas.width !== width || canvas.height !== height) {
-      console.log("scroll");
-      const { devicePixelRatio: ratio = 1 } = window;
+  //   if (canvas.width !== width || canvas.height !== height) {
+  //     console.log("scroll");
+  //     const { devicePixelRatio: ratio = 1 } = window;
 
-      canvas.width = width * ratio;
-      canvas.height = height * ratio;
-      ctx.scale(ratio, ratio);
-      return true;
-    }
-    canvas.width = width;
-    canvas.height = height;
-    return false;
-  }
+  //     canvas.width = width * ratio;
+  //     canvas.height = height * ratio;
+  //     ctx.scale(ratio, ratio);
+  //     return true;
+  //   }
+  //   canvas.width = width;
+  //   canvas.height = height;
+  //   return false;
+  // }
 
   const paint = (e, isClick) => {
     if (!isDrawing && !isClick) {
@@ -103,7 +123,7 @@ const Canvas = (props) => {
     let rectX = Math.floor(coordinates.x / (rectSize * scale));
     let rectY = Math.floor(coordinates.y / (rectSize * scale));
     // stop drawing when it's outside of the bounds (i have a grid 100 x 100)
-    if (rectX > rectCount - 1 || rectY > rectCount - 1) {
+    if (rectX > rectCountX - 1 || rectY > rectCountY - 1) {
       console.log("im here");
       return;
     }
