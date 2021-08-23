@@ -15,7 +15,7 @@ const CreatePixelArtConfig = () => {
   const handleSetHeight = (e) => {
     const { value: height } = e.target;
 
-    if (height > windowSize.height * 0.6)
+    if (height > windowSize.height * 0.8)
       return setError(
         `Maximum of ${Math.floor(windowSize.height * 0.6)}px is allowed`
       );
