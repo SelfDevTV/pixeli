@@ -19,8 +19,8 @@ const CreatePixelArt = ({
   const [canvas, setCanvas] = useState(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [spaceBarHoldDown, setSpaceBarHoldDown] = useState(false);
-  const [rectCountX, setRectCountX] = useState(Math.round(width / rectSize));
-  const [rectCountY, setRectCountY] = useState(Math.round(height / rectSize));
+  const [rectCountX, setRectCountX] = useState(Math.floor(width / rectSize));
+  const [rectCountY, setRectCountY] = useState(Math.floor(height / rectSize));
 
   // first render, initiate the canvas, draw the board
   useEffect(() => {

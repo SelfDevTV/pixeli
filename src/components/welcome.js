@@ -9,12 +9,12 @@ const Welcome = () => {
         Welcome to Pixeli. Its a coloring pixels clone
       </h1>
       <div className="flex justify-center p-24">
-        <Link href="/createPixelArtPage">
+        <Link href="/createPixelArtConfig">
           <a className="mr-10 p-4 border-4 border-yellow-700 rounded-lg">
             Create a Pixel Art
           </a>
         </Link>
-        <Link href="/playPixelArtPage">
+        <Link href="/playPixelArtList">
           <a className="p-4 border-4 border-yellow-700 rounded-lg">
             Chose a Pixel Art to Play
           </a>

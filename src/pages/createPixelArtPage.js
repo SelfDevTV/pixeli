@@ -1,15 +1,18 @@
-import CreatePixelArt from "../components/createPixelArt";
+import { useRouter } from "next/router";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { supabase } from "../lib/initSupabase";
 import { useState } from "react";
 import { CirclePicker } from "react-color";
 import { useWindowSize } from "../utils/useWindowSize";
+import CreatePixelArt from "../components/createPixelArt";
 
 const CreatePixelArtPage = () => {
   const [selectedColor, setColor] = useState("#f44336");
   const [boardData, setBoardData] = useState([]);
   const [scale, setScale] = useState(1);
   const size = useWindowSize();
+  const router = useRouter();
+  const { pixelArtTitle, pixelArtHeight, pixelArtWidth } = router.query;
 
   function changeColor(color) {
     setColor(color.hex);
@@ -20,11 +23,16 @@ const CreatePixelArtPage = () => {
   };
 
   const submitCanvasData = async () => {
+    // get props from router query
+
     // inserts the current pixelArt Data into the datbase
-    // TODO: figure out to give it a title afterwards on the savePixelArtForm Screen
-    const { data, error } = await supabase
-      .from("pixelArts")
-      .insert({ pixelArtTitle: "Test", pixels: JSON.stringify(boardData) });
+
+    const { data, error } = await supabase.from("pixelArts").insert({
+      pixelArtTitle,
+      pixelArtWidth,
+      pixelArtHeight,
+      pixels: JSON.stringify(boardData),
+    });
   };
 
   const handleZoom = (ReactZoomPanPinchRef) => {
@@ -50,15 +58,15 @@ const CreatePixelArtPage = () => {
       <TransformWrapper onZoom={handleZoom} panning={{ activationKeys: [" "] }}>
         <TransformComponent>
           <CreatePixelArt
-            width={size.width * 0.8}
-            height={size.height * 0.7}
+            width={pixelArtWidth}
+            height={pixelArtHeight}
             pickedColor={selectedColor}
             updateBoardData={updateBoardData}
             boardData={boardData}
             setBoardData={setBoardData}
             scale={scale}
             rectSize={30}
-            style={{ flex: 1, marginTop: 40 }}
+            className="mt-4 flex-1 w-full"
           />
         </TransformComponent>
       </TransformWrapper>

@@ -18,7 +18,7 @@ const PlayPixelArt = () => {
   const fetchPixelArt = async () => {
     const { data, error } = await supabase.from("pixelArts").select();
 
-    setPixelArt(JSON.parse(data[1].pixels));
+    setPixelArt(JSON.parse(data[data.length - 1].pixels));
     return { data, error };
   };
 
