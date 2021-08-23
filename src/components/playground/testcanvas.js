@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const Canvas = (props) => {
+const TestCanvas = (props) => {
   const {
     draw,
     width,
@@ -28,37 +28,29 @@ const Canvas = (props) => {
     setCtx(context);
 
     //draw
-
-    generateDrawingBoard(context);
   }, []);
 
-  const generateDrawingBoard = (ctx) => {
-    // Todo:
+  useEffect(() => {
+    generateDrawingBoard(ctx, boardData);
+  }, [ctx]);
 
+  const generateDrawingBoard = (ctx, boardData) => {
+    // Todo:
+    if (boardData.length === 0) return;
     // Generate an Array of pixels that have all the things we need to redraw
 
-    for (var i = 0; i < rectCount; i++) {
-      for (var j = 0; j < rectCount; j++) {
-        //for debugging
+    boardData.forEach((pixel) => {
+      ctx.fillStyle = pixel.currentColor;
+      ctx.fillRect(pixel.x * rectSize, pixel.y * rectSize, rectSize, rectSize);
 
-        const pixel = {
-          x: i,
-          y: j,
-          currentColor: "white",
-          desiredColor: "blue",
-          colorCode: 1,
-        };
-        updateBoardData(pixel);
-        ctx.fillStyle = "white";
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(i * rectSize, j * rectSize, rectSize, rectSize);
-
-        //   ctx.font = "30px Arial";
-        //   ctx.textAlign = "center";
-        //   ctx.textBaseline = "middle";
-        //   ctx.fillText("1", i * 10 + 10 / 2, j * 10 + 10 / 2);
-      }
-    }
+      ctx.fillStyle = "black";
+      ctx.strokeRect(
+        pixel.x * rectSize,
+        pixel.y * rectSize,
+        rectSize,
+        rectSize
+      );
+    });
   };
 
   function getCursorPosition(canvas, event) {
@@ -81,7 +73,6 @@ const Canvas = (props) => {
     let rectY = Math.floor(coordinates.y / rectSize);
     // stop drawing when it's outside of the bounds (i have a grid 100 x 100)
     if (rectX > rectCount - 1 || rectY > rectCount - 1) {
-      console.log("im here");
       return;
     }
 
@@ -94,6 +85,9 @@ const Canvas = (props) => {
 
     ctx.fillStyle = pickedColor;
     ctx.fillRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
+
+    ctx.fillStyle = "black";
+    ctx.strokeRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
   };
 
   return (
@@ -115,4 +109,4 @@ const Canvas = (props) => {
   );
 };
 
-export default Canvas;
+export default TestCanvas;
