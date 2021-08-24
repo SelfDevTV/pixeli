@@ -23,8 +23,6 @@ const CreatePixelArtPage = () => {
   };
 
   const submitCanvasData = async () => {
-    // get props from router query
-
     // inserts the current pixelArt Data into the datbase
 
     const { data, error } = await supabase.from("pixelArts").insert({
@@ -65,7 +63,7 @@ const CreatePixelArtPage = () => {
             boardData={boardData}
             setBoardData={setBoardData}
             scale={scale}
-            rectSize={30}
+            rectSize={12}
             className="mt-4 flex-1 w-full"
           />
         </TransformComponent>

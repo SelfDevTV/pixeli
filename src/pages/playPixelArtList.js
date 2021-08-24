@@ -26,18 +26,22 @@ const PlayPixelArtList = () => {
     // loop through all the pixelarts and render a custom component + link with query of the pixelart id
 
     const pixis = pixelArts.map((pixelArt) => (
-      <Link
-        href={{
-          pathname: "/playPixelArtPage",
-          query: { pixelArtId: pixelArt.id },
-        }}
-        key={pixelArt.id}
-        passHref
-      >
-        <a>
-          <PixelArtPreview pixelArt={pixelArt} />
-        </a>
-      </Link>
+      <div key={pixelArt.id} className="flex flex-col mt-12">
+        <p className="text-center">
+          Title: {pixelArt.pixelArtTitle ? pixelArt.pixelArtTitle : "No title"}
+        </p>
+        <Link
+          href={{
+            pathname: "/playPixelArtPage",
+            query: { pixelArtId: pixelArt.id },
+          }}
+          passHref
+        >
+          <a>
+            <PixelArtPreview pixelArt={pixelArt} />
+          </a>
+        </Link>
+      </div>
     ));
 
     return pixis;

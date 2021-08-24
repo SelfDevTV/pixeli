@@ -41,12 +41,15 @@ export const drawGame = (pixelArt, ctx) => {
 
       // drawColorCode(ctx, pixel, newRectSize, colorsWithCodes);
       ctx.fillStyle = "white";
-      ctx.font = "22px sans-serif";
+      ctx.font = "12px sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const textX = pixel.x * newRectSize + newRectSize / 2;
       const textY = pixel.y * newRectSize + newRectSize / 2;
-      ctx.fillText(colorsWithCodes[pixel.pickedColor], textX, textY);
+      const colorNumber = colorsWithCodes.find(
+        (color) => color.color === pixel.pickedColor
+      );
+      ctx.fillText(colorNumber.colorNumber, textX, textY, newRectSize);
     } else {
       ctx.fillStyle = "white";
 
