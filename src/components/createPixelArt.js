@@ -74,8 +74,6 @@ const CreatePixelArt = ({
           x: i,
           y: j,
           pickedColor: "white",
-          // we don't know the color code yet, we generate that afterwards
-          colorCode: null,
         };
         updateBoardData(pixel);
         ctx.fillStyle = "white";

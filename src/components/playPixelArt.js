@@ -40,6 +40,7 @@ const PlayPixelArt = ({ scale = 1 }) => {
 
   useEffect(() => {
     if (!pixelArtId) return;
+
     fetchPixelArt();
   }, [pixelArtId]);
 
@@ -70,11 +71,12 @@ const PlayPixelArt = ({ scale = 1 }) => {
   useEffect(() => {
     if (!ctx || !pixelArt) return;
 
-    const test = mapColorsToNumbers(JSON.parse(pixelArt.pixels));
-    setPickedColor(test[0].color);
+    const test = JSON.parse(pixelArt.colors);
+
     setColorsWithCodes(test);
     // Draw the game
-    drawGame(pixelArt, ctx);
+    drawGame(pixelArt, ctx, pickedColor);
+    console.log("lalalala new pixel art; ", pixelArt);
   }, [ctx, pixelArt]);
 
   function getCursorPosition(canvas, event) {
@@ -113,6 +115,33 @@ const PlayPixelArt = ({ scale = 1 }) => {
     if (JSON.parse(pixelArt.pixels)[index].pickedColor === "white") {
       return;
     }
+
+    if (
+      JSON.parse(pixelArt.pixels)[index].pickedColor === pickedColor &&
+      !JSON.parse(pixelArt.pixels)[index].paintedCorrectly
+    ) {
+      console.log("painted correctly: ", JSON.parse(pixelArt.pixels)[index]);
+      const newColors = JSON.parse(pixelArt.colors).map((color) => {
+        if (color.color === pickedColor) {
+          return {
+            ...color,
+            colorCount: color.colorCount - 1,
+          };
+        } else {
+          return color;
+        }
+      });
+      const newPixels = JSON.parse(pixelArt.pixels);
+      newPixels[index].paintedCorrectly = true;
+      console.log("new colors: ", newColors);
+      const newPixelArt = {
+        ...pixelArt,
+        colors: JSON.stringify(newColors),
+        pixels: JSON.stringify(newPixels),
+      };
+
+      setPixelArt(newPixelArt);
+    }
     // if (index > -1) {
     //   const newBoard = [...boardData];
     //   newBoard[index] = { ...boardData[index], pickedColor: pickedColor };
@@ -122,8 +151,6 @@ const PlayPixelArt = ({ scale = 1 }) => {
     // draw the colored rect where clicked / hovered on
     ctx.fillStyle = pickedColor;
     ctx.fillRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
-    ctx.fillStyle = "black";
-    ctx.strokeRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
 
     // draw the number again
 

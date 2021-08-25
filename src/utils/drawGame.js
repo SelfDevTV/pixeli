@@ -1,6 +1,6 @@
 import { mapColorsToNumbers } from "./mapColorToNumber";
 
-export const drawGame = (pixelArt, ctx) => {
+export const drawGame = (pixelArt, ctx, pickedColor) => {
   const rectCount = JSON.parse(pixelArt.pixels).length;
 
   // total pixles (canvas height * canvas.width with the scale of 0.5 so it matches the canvas from the component before)
@@ -22,34 +22,38 @@ export const drawGame = (pixelArt, ctx) => {
 
     // This does work and the coordinates are even in the array
     // ctx.fillText("1", 585, 585);
-    ctx.fillStyle = "white";
-    ctx.strokeRect(
-      pixel.x * newRectSize,
-      pixel.y * newRectSize,
-      newRectSize,
-      newRectSize
-    );
 
     if (pixel.pickedColor !== "white") {
-      ctx.fillStyle = "grey";
-      ctx.fillRect(
-        pixel.x * newRectSize,
-        pixel.y * newRectSize,
-        newRectSize,
-        newRectSize
-      );
+      if (pixel.paintedCorrectly) {
+        ctx.fillStyle = pixel.pickedColor;
+        ctx.fillRect(
+          pixel.x * newRectSize,
+          pixel.y * newRectSize,
+          newRectSize,
+          newRectSize
+        );
+      } else {
+        ctx.fillStyle = "grey";
+        ctx.fillRect(
+          pixel.x * newRectSize,
+          pixel.y * newRectSize,
+          newRectSize,
+          newRectSize
+        );
+
+        ctx.fillStyle = "white";
+        ctx.font = "12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const textX = pixel.x * newRectSize + newRectSize / 2;
+        const textY = pixel.y * newRectSize + newRectSize / 2;
+        const colorNumber = colorsWithCodes.find(
+          (color) => color.color === pixel.pickedColor
+        );
+        ctx.fillText(colorNumber.colorNumber, textX, textY, newRectSize);
+      }
 
       // drawColorCode(ctx, pixel, newRectSize, colorsWithCodes);
-      ctx.fillStyle = "white";
-      ctx.font = "12px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const textX = pixel.x * newRectSize + newRectSize / 2;
-      const textY = pixel.y * newRectSize + newRectSize / 2;
-      const colorNumber = colorsWithCodes.find(
-        (color) => color.color === pixel.pickedColor
-      );
-      ctx.fillText(colorNumber.colorNumber, textX, textY, newRectSize);
     } else {
       ctx.fillStyle = "white";
 

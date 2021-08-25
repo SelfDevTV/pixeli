@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CirclePicker } from "react-color";
 import { useWindowSize } from "../utils/useWindowSize";
 import CreatePixelArt from "../components/createPixelArt";
+import { mapColorsToNumbers } from "../utils/mapColorToNumber";
 
 const CreatePixelArtPage = () => {
   const [selectedColor, setColor] = useState("#f44336");
@@ -30,6 +31,7 @@ const CreatePixelArtPage = () => {
       pixelArtWidth,
       pixelArtHeight,
       pixels: JSON.stringify(boardData),
+      colors: JSON.stringify(mapColorsToNumbers(boardData)),
     });
   };
 
