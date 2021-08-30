@@ -6,8 +6,8 @@ const CustomColorPicker = ({ pixelArt, handleColorChange, pickedColor }) => {
   // TODO: Get colors from props
 
   if (!pixelArt) return <p></p>;
-  console.log("hallihallo: ", JSON.parse(pixelArt.colors));
-  const colors = JSON.parse(pixelArt.colors);
+
+  const colors = pixelArt.colors;
   return (
     <div className="flex">
       {colors.map((color) => (

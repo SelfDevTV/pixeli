@@ -13,8 +13,6 @@ const PlayPixelArtList = () => {
     const { data, error } = await supabase.from("pixelArts").select();
 
     setPixelArts(data);
-    console.log("data is: ", data);
-    console.log("error is: ", error);
     return { data, error };
   };
 

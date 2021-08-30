@@ -70,15 +70,6 @@ const CreatePixelArtPage = () => {
           />
         </TransformComponent>
       </TransformWrapper>
-      {/* TODO: Include the already saved id of the canvas in the query props */}
-      {/* <Link href="/savePixelArtForm">
-        <a
-          className="py-2 px-5 mt-4 rounded-lg bg-yellow-700 text-white"
-          onClick={submitCanvasData}
-        >
-          Go to Save Screen
-        </a>
-      </Link> */}
       <button
         className="py-2 px-5 mt-4 rounded-lg bg-yellow-700 text-white"
         onClick={submitCanvasData}

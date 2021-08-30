@@ -1,5 +1,5 @@
 export const calculateRectSize = (pixelArt, scale = 1) => {
-  const rectCount = JSON.parse(pixelArt.pixels).length;
+  const rectCount = pixelArt.pixels.length;
 
   const canvasPixelsCount = Math.fround(
     pixelArt.pixelArtWidth * scale * (pixelArt.pixelArtHeight * scale)

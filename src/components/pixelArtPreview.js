@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { drawPixelArtFromState } from "../utils/drawPixelArtFromState";
+import { parsePixelArt } from "../utils/parsePixelArt";
 
 const PixelArtPreview = ({ pixelArt }) => {
   const canvasRef = useRef(null);
@@ -21,7 +22,7 @@ const PixelArtPreview = ({ pixelArt }) => {
 
   useEffect(() => {
     if (!ctx) return;
-    drawPixelArtFromState(pixelArt, ctx, 30);
+    drawPixelArtFromState(parsePixelArt(pixelArt), ctx, 30);
   }, [pixelArt, ctx]);
   return <canvas className="m-4" ref={canvasRef} />;
 };

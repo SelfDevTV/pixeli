@@ -5,7 +5,7 @@ export const drawPixelArtFromState = (pixelArt, ctx) => {
   const newRectSize = calculateRectSize(pixelArt, 0.5);
 
   // TODO: Parse it instantly where we fetch it
-  JSON.parse(pixelArt.pixels).forEach((pixel) => {
+  pixelArt.pixels.forEach((pixel) => {
     ctx.fillStyle = "white";
     ctx.strokeRect(
       pixel.x * newRectSize,

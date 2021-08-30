@@ -4,8 +4,6 @@ export const mapColorsToNumbers = (pixels) => {
 
   const colorCodes = {};
 
-  pixels.forEach;
-
   pixels.forEach((pixel) => {
     if (pixel.pickedColor === "white") return;
     if (colors.includes(pixel.pickedColor)) {
@@ -26,17 +24,11 @@ export const mapColorsToNumbers = (pixels) => {
     };
   });
 
-  console.log(newColors);
-
   const sortedColors = newColors
     .sort((a, b) => {
-      console.log(a);
-      console.log(b);
       return a.colorCount - b.colorCount;
     })
     .reverse();
-
-  console.log("sorted colors", sortedColors);
 
   const colorsWithNumber = sortedColors.map((color, i) => {
     return {
@@ -44,8 +36,6 @@ export const mapColorsToNumbers = (pixels) => {
       colorNumber: i + 1,
     };
   });
-
-  console.log("Colors with number: ", colorsWithNumber);
 
   // Now order the colors array with the most
 

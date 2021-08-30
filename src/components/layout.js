@@ -4,7 +4,7 @@ const Layout = ({ children }) => {
   return (
     <div>
       {children}
-      <div className="fixed bottom-5 left-1/3 flex items-center">
+      <div className="bottom-16 fixed flex w-full items-center justify-center">
         <Link href="/">
           <a className="px-4 py-1 bg-yellow-700 rounded-lg text-white">
             Go to Home

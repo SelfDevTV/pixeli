@@ -5,6 +5,7 @@ import { supabase } from "../lib/initSupabase";
 import { calculateRectSize } from "../utils/calculateRectSize";
 import { drawGame } from "../utils/drawGame";
 import { mapColorsToNumbers } from "../utils/mapColorToNumber";
+import { parsePixelArt } from "../utils/parsePixelArt";
 import CustomColorPicker from "./customColorPicker";
 
 // In this component the user can play the actual "coloring pixel" style game.
@@ -32,9 +33,7 @@ const PlayPixelArt = ({ scale = 1 }) => {
       .single()
       .eq("id", pixelArtId);
 
-    setPixelArt(data);
-    console.log("data is: ", data);
-    console.log("error is: ", error);
+    setPixelArt(parsePixelArt(data));
     return { data, error };
   };
 
@@ -71,12 +70,11 @@ const PlayPixelArt = ({ scale = 1 }) => {
   useEffect(() => {
     if (!ctx || !pixelArt) return;
 
-    const test = JSON.parse(pixelArt.colors);
+    const colors = pixelArt.colors;
 
-    setColorsWithCodes(test);
+    setColorsWithCodes(colors);
     // Draw the game
     drawGame(pixelArt, ctx, pickedColor);
-    console.log("lalalala new pixel art; ", pixelArt);
   }, [ctx, pixelArt]);
 
   function getCursorPosition(canvas, event) {
@@ -92,8 +90,6 @@ const PlayPixelArt = ({ scale = 1 }) => {
       return;
     }
 
-    console.log(colorsWithCodes);
-
     const coordinates = getCursorPosition(canvas, e);
 
     const rectSize = calculateRectSize(pixelArt);
@@ -108,20 +104,19 @@ const PlayPixelArt = ({ scale = 1 }) => {
     if (rectX > rectCountX - 1 || rectY > rectCountY - 1) return;
 
     // update the boaredData Array so we can save the canvas state
-    const index = JSON.parse(pixelArt.pixels).findIndex(
+    const index = pixelArt.pixels.findIndex(
       (o) => o.x === rectX && o.y === rectY
     );
 
-    if (JSON.parse(pixelArt.pixels)[index].pickedColor === "white") {
+    if (pixelArt.pixels[index].pickedColor === "white") {
       return;
     }
 
     if (
-      JSON.parse(pixelArt.pixels)[index].pickedColor === pickedColor &&
-      !JSON.parse(pixelArt.pixels)[index].paintedCorrectly
+      pixelArt.pixels[index].pickedColor === pickedColor &&
+      !pixelArt.pixels[index].paintedCorrectly
     ) {
-      console.log("painted correctly: ", JSON.parse(pixelArt.pixels)[index]);
-      const newColors = JSON.parse(pixelArt.colors).map((color) => {
+      const newColors = pixelArt.colors.map((color) => {
         if (color.color === pickedColor) {
           return {
             ...color,
@@ -131,22 +126,16 @@ const PlayPixelArt = ({ scale = 1 }) => {
           return color;
         }
       });
-      const newPixels = JSON.parse(pixelArt.pixels);
+      const newPixels = pixelArt.pixels;
       newPixels[index].paintedCorrectly = true;
-      console.log("new colors: ", newColors);
       const newPixelArt = {
         ...pixelArt,
-        colors: JSON.stringify(newColors),
-        pixels: JSON.stringify(newPixels),
+        colors: newColors,
+        pixels: newPixels,
       };
 
       setPixelArt(newPixelArt);
     }
-    // if (index > -1) {
-    //   const newBoard = [...boardData];
-    //   newBoard[index] = { ...boardData[index], pickedColor: pickedColor };
-    //   setBoardData(newBoard);
-    // }
 
     // draw the colored rect where clicked / hovered on
     ctx.fillStyle = pickedColor;
@@ -161,13 +150,12 @@ const PlayPixelArt = ({ scale = 1 }) => {
     const textX = rectX * rectSize + rectSize / 2;
     const textY = rectY * rectSize + rectSize / 2;
     const foundNum = colorsWithCodes.find(
-      (color) => color.color === JSON.parse(pixelArt.pixels)[index].pickedColor
+      (color) => color.color === pixelArt.pixels[index].pickedColor
     );
 
-    if (pickedColor === JSON.parse(pixelArt.pixels)[index].pickedColor) {
+    if (pickedColor === pixelArt.pixels[index].pickedColor) {
       return;
     }
-    console.log("found num, ", foundNum);
     ctx.fillText(foundNum.colorNumber, textX, textY, rectSize);
 
     // TODO: Implement game logic
