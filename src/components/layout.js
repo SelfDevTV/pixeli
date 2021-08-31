@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const Layout = ({ children }) => {
   return (
-    <div>
+    <div className="h-full w-full">
       {children}
       <div className="bottom-16 fixed flex w-full items-center justify-center">
         <Link href="/">

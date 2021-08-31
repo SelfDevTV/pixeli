@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import PixelArtPreview from "../components/pixelArtPreview";
-import { supabase } from "../lib/initSupabase";
+import PixelArtPreview from "../../components/pixelArtPreview";
+import { supabase } from "../../lib/initSupabase";
 
 const PlayPixelArtList = () => {
   // TODO: Fetch all the pixelArts from here and render a mini symbol with the help of "draw pixel from state", make another custom component that does all this
@@ -30,7 +30,7 @@ const PlayPixelArtList = () => {
         </p>
         <Link
           href={{
-            pathname: "/playPixelArtPage",
+            pathname: "/pixelArt/draw",
             query: { pixelArtId: pixelArt.id },
           }}
           passHref

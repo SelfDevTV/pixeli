@@ -1,26 +1,29 @@
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { CirclePicker, CustomPicker } from "react-color";
-import { supabase } from "../lib/initSupabase";
-import { calculateRectSize } from "../utils/calculateRectSize";
-import { drawGame } from "../utils/drawGame";
-import { mapColorsToNumbers } from "../utils/mapColorToNumber";
-import { parsePixelArt } from "../utils/parsePixelArt";
-import CustomColorPicker from "./customColorPicker";
+import { supabase } from "../../lib/initSupabase";
+import { calculateRectSize } from "../../utils/calculateRectSize";
+import { drawGame } from "../../utils/drawGame";
+import { parsePixelArt } from "../../utils/parsePixelArt";
+import CustomColorPicker from "../../components/customColorPicker";
+import useCanvas from "../../utils/useCanvas";
+import { useWindowSize } from "../../utils/useWindowSize";
+import { checkWinningCondition } from "../../utils/checkWinningCondition";
 
 // In this component the user can play the actual "coloring pixel" style game.
 
-const PlayPixelArt = ({ scale = 1 }) => {
+const DrawPixelArt = ({ scale = 1 }) => {
   const router = useRouter();
   const { pixelArtId } = router.query;
   const [pixelArt, setPixelArt] = useState(null);
-  const canvasRef = useRef(null);
-  const [ctx, setCtx] = useState(null);
-  const [canvas, setCanvas] = useState(null);
+
   // TODO: Initialize with the first color in the saved colors array in pixelArt
   const [pickedColor, setPickedColor] = useState("white");
   const [spaceBarHoldDown, setSpaceBarHoldDown] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const windowSize = useWindowSize();
+  const [canvasRef, draw, getCursorPosition, canvas] = useCanvas(0, 0);
+  const [hasWon, setHasWon] = useState(false);
 
   const [colorsWithCodes, setColorsWithCodes] = useState(null);
 
@@ -33,7 +36,16 @@ const PlayPixelArt = ({ scale = 1 }) => {
       .single()
       .eq("id", pixelArtId);
 
-    setPixelArt(parsePixelArt(data));
+    const parsedData = parsePixelArt(data);
+    const pixelArt = {
+      ...parsedData,
+      pixels: parsedData.pixels.map((pixel) => ({
+        ...pixel,
+        paintedCorrectly: false,
+        currentColor: null,
+      })),
+    };
+    setPixelArt(pixelArt);
     return { data, error };
   };
 
@@ -45,16 +57,6 @@ const PlayPixelArt = ({ scale = 1 }) => {
 
   useEffect(() => {
     if (!pixelArt) return;
-    const canvas = canvasRef.current;
-    // This is where I scale the original size
-    // the whole pixelArt comes from the database and looks like this (example data):
-
-    // { pixelArtTitle: "some title", pixelArtWidth: 1234, pixelArtHeight: 1234, pixels: [... (the array I shows above with pixels)]}
-    canvas.width = pixelArt.pixelArtWidth + 100;
-    canvas.height = pixelArt.pixelArtHeight + 100;
-    setCanvas(canvas);
-    const context = canvas.getContext("2d");
-    setCtx(context);
 
     // handles the spacebar events since canvas has no onkeydown listener.
     window.addEventListener("keydown", handleKeyDown);
@@ -68,29 +70,33 @@ const PlayPixelArt = ({ scale = 1 }) => {
   }, [pixelArt]);
 
   useEffect(() => {
-    if (!ctx || !pixelArt) return;
+    if (!pixelArt) return;
+
+    const hasWonStatus = checkWinningCondition(pixelArt);
+    console.log(hasWonStatus);
+
+    if (hasWonStatus) {
+      setHasWon(true);
+    }
+
+    canvas.width = Math.floor(pixelArt.pixelArtWidth);
+    canvas.height = Math.floor(pixelArt.pixelArtHeight);
 
     const colors = pixelArt.colors;
 
     setColorsWithCodes(colors);
     // Draw the game
-    drawGame(pixelArt, ctx, pickedColor);
-  }, [ctx, pixelArt]);
-
-  function getCursorPosition(canvas, event) {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    return { x, y };
-  }
+    draw((ctx) => {
+      drawGame(pixelArt, ctx, pickedColor);
+    });
+  }, [pixelArt, draw]);
 
   const paint = (e, isClick) => {
     if (!isDrawing && !isClick) {
       return;
     }
 
-    const coordinates = getCursorPosition(canvas, e);
+    const coordinates = getCursorPosition(e);
 
     const rectSize = calculateRectSize(pixelArt);
 
@@ -128,6 +134,7 @@ const PlayPixelArt = ({ scale = 1 }) => {
       });
       const newPixels = pixelArt.pixels;
       newPixels[index].paintedCorrectly = true;
+      newPixels[index].currentColor = pickedColor;
       const newPixelArt = {
         ...pixelArt,
         colors: newColors,
@@ -135,28 +142,65 @@ const PlayPixelArt = ({ scale = 1 }) => {
       };
 
       setPixelArt(newPixelArt);
+    } else if (
+      pixelArt.pixels[index].pickedColor !== pickedColor &&
+      pixelArt.pixels[index].paintedCorrectly
+    ) {
+      const newColors = pixelArt.colors.map((color) => {
+        if (color.color === pixelArt.pixels[index].pickedColor) {
+          return {
+            ...color,
+            colorCount: color.colorCount + 1,
+          };
+        } else {
+          return color;
+        }
+      });
+      const newPixels = pixelArt.pixels;
+      newPixels[index].paintedCorrectly = false;
+      newPixels[index].currentColor = pickedColor;
+      const newPixelArt = {
+        ...pixelArt,
+        colors: newColors,
+        pixels: newPixels,
+      };
+
+      setPixelArt(newPixelArt);
+    } else {
+      const newPixels = pixelArt.pixels;
+
+      newPixels[index].currentColor = pickedColor;
+      const newPixelArt = {
+        ...pixelArt,
+
+        pixels: newPixels,
+      };
+      setPixelArt(newPixelArt);
     }
 
-    // draw the colored rect where clicked / hovered on
-    ctx.fillStyle = pickedColor;
-    ctx.fillRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
+    draw((ctx) => {
+      // draw the colored rect where clicked / hovered on
 
-    // draw the number again
+      ctx.fillStyle = pickedColor;
+      ctx.fillRect(rectX * rectSize, rectY * rectSize, rectSize, rectSize);
 
-    ctx.fillStyle = "white";
-    ctx.font = "12px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    const textX = rectX * rectSize + rectSize / 2;
-    const textY = rectY * rectSize + rectSize / 2;
-    const foundNum = colorsWithCodes.find(
-      (color) => color.color === pixelArt.pixels[index].pickedColor
-    );
+      // draw the number again
 
-    if (pickedColor === pixelArt.pixels[index].pickedColor) {
-      return;
-    }
-    ctx.fillText(foundNum.colorNumber, textX, textY, rectSize);
+      ctx.fillStyle = "white";
+      ctx.font = "12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const textX = rectX * rectSize + rectSize / 2;
+      const textY = rectY * rectSize + rectSize / 2;
+      const foundNum = colorsWithCodes.find(
+        (color) => color.color === pixelArt.pixels[index].pickedColor
+      );
+
+      if (pickedColor === pixelArt.pixels[index].pickedColor) {
+        return;
+      }
+      ctx.fillText(foundNum.colorNumber, textX, textY, rectSize);
+    });
 
     // TODO: Implement game logic
     // find out when a pixel is colored correctly
@@ -215,8 +259,9 @@ const PlayPixelArt = ({ scale = 1 }) => {
         className="flex-1"
         ref={canvasRef}
       />
+      {hasWon ? <h1>You have won</h1> : <h1></h1>}
     </div>
   );
 };
 
-export default PlayPixelArt;
+export default DrawPixelArt;
