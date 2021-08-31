@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CirclePicker } from "react-color";
 import { mapColorsToNumbers } from "../../utils/mapColorToNumber";
 import useCanvas from "../../utils/useCanvas";
+import { useWindowSize } from "../../utils/useWindowSize";
 
 const CreatePixelArtPage = () => {
   const [pickedColor, setPickedColor] = useState("#f44336");
@@ -15,14 +16,16 @@ const CreatePixelArtPage = () => {
   const router = useRouter();
   const { pixelArtTitle, pixelArtHeight, pixelArtWidth } = router.query;
   const { size: rectSize } = router.query;
-  const [rectCountX, setRectCountX] = useState(Math.floor(1000 / rectSize));
-  const [rectCountY, setRectCountY] = useState(Math.floor(800 / rectSize));
+  const [rectCountX, setRectCountX] = useState(0);
+  const [rectCountY, setRectCountY] = useState(0);
 
-  const [canvasRef, draw, getCursorPosition] = useCanvas(1000, 800);
+  const [canvasRef, draw, getCursorPosition, canvas] = useCanvas(0, 0);
+
+  const windowSize = useWindowSize();
 
   const generateDrawingBoard = (ctx) => {
     // Generate an Array of pixels that have all the things we need to redraw
-    console.log("serveus, ", ctx);
+
     for (var i = 0; i < rectCountX; i++) {
       for (var j = 0; j < rectCountY; j++) {
         // this is the quint essence whats saved in a huge array. 1000's of these pixels.
@@ -40,14 +43,22 @@ const CreatePixelArtPage = () => {
   };
 
   useEffect(() => {
-    console.log("hi");
-    console.log(draw);
-    draw((ctx) => {
-      console.log("hiho");
+    if (!canvas) return;
+    console.log(windowSize);
+    console.log(rectSize);
+    const canvasWidth = windowSize.width * 0.8;
+    const canvasHeight = windowSize.height * 0.7;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    setRectCountX(Math.floor(canvasWidth / rectSize));
+    setRectCountY(Math.floor(canvasHeight / rectSize));
+  }, [windowSize, rectSize]);
 
+  useEffect(() => {
+    draw((ctx) => {
       generateDrawingBoard(ctx);
     });
-  }, [draw]);
+  }, [draw, rectCountX]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -120,6 +131,8 @@ const CreatePixelArtPage = () => {
       pixels: JSON.stringify(pixels),
       colors: JSON.stringify(mapColorsToNumbers(pixels)),
     });
+    console.log(data);
+    console.error(error);
   };
 
   const handleZoom = (ReactZoomPanPinchRef) => {
