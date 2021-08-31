@@ -1,28 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import { drawPixelArtFromState } from "../utils/drawPixelArtFromState";
+import { parsePixelArt } from "../utils/parsePixelArt";
+import useCanvas from "../utils/useCanvas";
+import { useWindowSize } from "../utils/useWindowSize";
 
 const PixelArtPreview = ({ pixelArt }) => {
-  const canvasRef = useRef(null);
-  const [ctx, setCtx] = useState(null);
-  const [canvas, setCanvas] = useState(null);
+  const windowSize = useWindowSize();
+
+  const [canvasRef, draw, getCursorPosition, canvas] = useCanvas(0, 0);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    // This is where I scale the original size
-    // the whole pixelArt comes from the database and looks like this (example data):
+    if (!canvas) return;
 
-    // { pixelArtTitle: "some title", pixelArtWidth: 1234, pixelArtHeight: 1234, pixels: [... (the array I shows above with pixels)]}
-    canvas.width = pixelArt.pixelArtWidth * 0.5;
-    canvas.height = pixelArt.pixelArtHeight * 0.5;
-    setCanvas(canvas);
-    const context = canvas.getContext("2d");
-    setCtx(context);
-  }, []);
+    const newWidth = windowSize.width * 0.35;
+    const newHeight = windowSize.height * 0.35;
+    canvas.width = newWidth;
+    canvas.height = newHeight;
 
-  useEffect(() => {
-    if (!ctx) return;
-    drawPixelArtFromState(pixelArt, ctx, 30);
-  }, [pixelArt, ctx]);
+    draw((ctx) => {
+      drawPixelArtFromState(parsePixelArt(pixelArt), ctx, 30, {
+        width: newWidth,
+        height: newHeight,
+      });
+    });
+  }, [pixelArt, draw]);
   return <canvas className="m-4" ref={canvasRef} />;
 };
 

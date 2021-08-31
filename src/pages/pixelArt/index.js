@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import PixelArtPreview from "../components/pixelArtPreview";
-import { supabase } from "../lib/initSupabase";
+import PixelArtPreview from "../../components/pixelArtPreview";
+import { supabase } from "../../lib/initSupabase";
 
 const PlayPixelArtList = () => {
   // TODO: Fetch all the pixelArts from here and render a mini symbol with the help of "draw pixel from state", make another custom component that does all this
@@ -11,10 +11,8 @@ const PlayPixelArtList = () => {
 
   const fetchPixelArt = async () => {
     const { data, error } = await supabase.from("pixelArts").select();
-
+    console.log(data);
     setPixelArts(data);
-    console.log("data is: ", data);
-    console.log("error is: ", error);
     return { data, error };
   };
 
@@ -26,18 +24,22 @@ const PlayPixelArtList = () => {
     // loop through all the pixelarts and render a custom component + link with query of the pixelart id
 
     const pixis = pixelArts.map((pixelArt) => (
-      <Link
-        href={{
-          pathname: "/playPixelArtPage",
-          query: { pixelArtId: pixelArt.id },
-        }}
-        key={pixelArt.id}
-        passHref
-      >
-        <a>
-          <PixelArtPreview pixelArt={pixelArt} />
-        </a>
-      </Link>
+      <div key={pixelArt.id} className="flex flex-col mt-12">
+        <p className="text-center">
+          Title: {pixelArt.pixelArtTitle ? pixelArt.pixelArtTitle : "No title"}
+        </p>
+        <Link
+          href={{
+            pathname: "/pixelArt/draw",
+            query: { pixelArtId: pixelArt.id },
+          }}
+          passHref
+        >
+          <a>
+            <PixelArtPreview pixelArt={pixelArt} />
+          </a>
+        </Link>
+      </div>
     ));
 
     return pixis;
